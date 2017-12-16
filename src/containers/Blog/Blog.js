@@ -1,10 +1,20 @@
 import React, { Component } from 'react';
 import './Blog.css';
 import Posts from './Posts/Posts';
-import NewPost from '../Blog/NewPost/NewPost';
-import { Route, Link }from 'react-router-dom';
+import { Route, NavLink, Switch, Redirect }from 'react-router-dom';
+// import NewPost from '../Blog/NewPost/NewPost';
+import ayncComponent from '../../hoc/asyncComponent';
+
+const AsyncNewComponent = ayncComponent(() => {
+    return import('../Blog/NewPost/NewPost');
+});
+
 
 class Blog extends Component {
+
+    state = {
+        auth: true
+    };
 
     render () {
 
@@ -13,19 +23,24 @@ class Blog extends Component {
                 <header>
                     <nav>
                         <ul>
-                            <li><Link to="/">Home</Link></li>
-                            <li><Link to={{
+                            <li><NavLink to="/posts" exact>Posts</NavLink></li>  {/*default add active class to override sue activeClassName, activeStyle*/}
+                            <li><NavLink to={{
                                 pathname: '/new-post',
                                 hash: '#submit',
                                 search: '?quick-submit=true'
-                            }}>New Post</Link></li>
+                            }}>New Post</NavLink></li>
                         </ul>
                     </nav>
                 </header>
                 {/*<Route path="/" exact render={() => <h1>Home</h1>}/>
-                <Route path="/" render={() => <h1>Home 2</h1>}/>*/}
-                <Route path="/" exact component={Posts}/>
-                <Route path="/new-post" exact component={NewPost}/>
+                 <Route path="/" render={() => <h1>Home 2</h1>}/>*/}
+                <Switch>
+                    {this.state.auth ? <Route path="/new-post" exact component={AsyncNewComponent}/>: null}
+                    <Route path="/posts" component={Posts}/>
+                    <Route render={() => <h1>Not Found</h1>} />
+                    {/*<Route path="/" component={Posts}/>*/}
+                    {/*<Redirect from="/" to="/posts"/>*/}
+                </Switch>
             </div>
         );
     }
